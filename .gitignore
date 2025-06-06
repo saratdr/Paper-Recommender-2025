@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pkl
+*.log
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Data
+data/*
+!data/README.md
+
+# Env
+.env
+.venv/
+venv/
+env/
+*.egg-info/
+
+
