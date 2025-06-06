@@ -1,0 +1,52 @@
+{% for paper in results %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ paper.title }}</h5>
+      <h6 class="card-subtitle mb-1"><strong>Authors:</strong> {{ paper.authors }}</h6>
+        <p class="mb-1">
+            <strong>arXiv ID:</strong>
+            <a href="https://arxiv.org/abs/{{ paper.id }}" target="_blank">{{ paper.id }}</a>
+            |
+            <strong>Date:</strong> {{ paper.date }}
+            |
+            <strong>Similarity:</strong> {{ '%.3f' | format(paper.similarity) }}
+        </p>
+      <div class="mt-2 small text-muted">
+
+
+        <p class="mb-1">
+            <strong>Main Category:</strong> <span class="badge bg-secondary me-1">{{ paper.main_category }}</span>
+        </p>
+
+        <p class="mb-1">
+            <strong>Categories:</strong>
+            {% for cat in paper.categories.split() %}
+            <span class="badge bg-secondary me-1">{{ cat }}</span>
+            {% endfor %}
+        </p>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end mt-2">
+        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#abstractModal{{ loop.index }}">
+        Abstract
+      </button>
+        <a href="{{ paper.pdf_url }}" class="btn btn-outline-primary btn-sm" target="_blank">View PDF</a>
+        <button class="btn btn-outline-secondary btn-sm recommend-again" data-title="{{ paper.title }}">More like this</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="abstractModal{{ loop.index }}" tabindex="-1" aria-labelledby="abstractLabel{{ loop.index }}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="abstractLabel{{ loop.index }}">Abstract</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ paper.abstract }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}

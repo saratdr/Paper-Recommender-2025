@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-center mb-4">🔍 Choose Your Lens</h1>
+
+<form method="POST" class="card p-4 shadow-sm" id="recommend-form">
+  <div class="mb-3">
+    <input type="text" name="query" id="queryInput" class="form-control" placeholder="Enter a title or keywords separated by a comma (e.g., 'machine learning, physics')..." required>
+  </div>
+  <div class="mb-3">
+    <label for="model">Embedding Model:</label>
+    <select name="model" id="modelSelect" class="form-select">
+      <option value="minilm">MiniLM (384d, general-purpose, fast)</option>
+      <option value="specter">SPECTER (768d, citation-informed, arXiv-trained)</option>
+      <option value="scibert">SciBERT (768d, domain-specific, SciVocab)</option>
+    </select>
+  </div>
+<div class="d-flex justify-content-between">
+  <button class="btn btn-primary" type="submit">Recommend Papers</button>
+  <button class="btn btn-secondary" type="button" id="clear-button">Clear</button>
+</div>
+</form>
+
+
+<div class="text-center mt-3" id="loading-spinner" style="display: none;">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<div id="resultsContainer" class="mt-5"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById('recommend-form');
+    const spinner = document.getElementById('loading-spinner');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    if (!form || !spinner || !resultsContainer) {
+      console.error("Required DOM elements not found!");
+      return;
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new URLSearchParams(new FormData(form));
+      spinner.style.display = 'block';
+      resultsContainer.innerHTML = '';
+
+      try {
+        const response = await fetch("/", {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          body: formData
+        });
+
+        const html = await response.text();
+        resultsContainer.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        resultsContainer.innerHTML = '<div class="alert alert-danger">Error loading recommendations.</div>';
+      } finally {
+        spinner.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('recommend-again')) {
+        const title = e.target.getAttribute('data-title');
+        document.getElementById('queryInput').value = title;
+        document.querySelector('#modelSelect').value = 'specter';
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
+
+    document.getElementById("clear-button").addEventListener("click", function() {
+        form.reset();
+        resultsContainer.innerHTML = "";
+    });
+
+  });
+</script>
+{% endblock %}
